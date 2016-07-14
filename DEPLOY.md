@@ -66,7 +66,15 @@ Es aconsejable crear un usuario y un grupo específico para la ejecución de la 
 
     adduser --disabled-password --disabled-login pilas-bloques-api
 
-Configuración del servidor web
+Configuración de directorio de logs:
+-------------------------
+
+    mkdir PATH_AL_REPOSITORIO_CLONADO/logs
+    chown pilas-bloques-api:pilas-bloques-api PATH_AL_REPOSITORIO_CLONADO/logs
+    mkdir PATH_AL_REPOSITORIO_CLONADO/httpd-logs
+    chown www-data:www-data PATH_AL_REPOSITORIO_CLONADO/httpd-logs
+
+Configuración del servidor web Apache2
 -----------------------------
 
 En primer, lugar es necesario instalar el módulo mod_wsgi de Apache, en distribuciones derivadas de Debian puede ejecutarse:
@@ -97,12 +105,71 @@ A continuación la aplicación puede publicarse en un virtual host `example.com`
        CustomLog PATH_AL_REPOSITORIO_CLONADO/logs/access.log combined
     </VirtualHost>
 
-Luego, crear el directorio para almacenar los logs:
-
-    mkdir PATH_AL_REPOSITORIO_CLONADO/logs
-    chown pilas-bloques-api:pilas-bloques-api PATH_AL_REPOSITORIO_CLONADO/logs
-
 Finalmente, reiniciar el servidor Apache.
+
+Configuración del servidor web nginx
+-----------------------------
+
+En primer lugar, es necesario instalar flup en el virtualenv de la aplicación
+
+    . venv/bin/activate
+    pip install flup
+
+Luego es necesario instalar supervisord.
+
+    apt-get install supervisor
+
+Configurar supervisord para que inicie la aplicación. Debe crearse el archivo /etc/supervisor/conf.d/pilas-bloques-api.conf con el siguiente contenido, reemplazando PATH_AL_REPOSITORIO_CLONADO por el path corresponiente:
+
+    [fcgi-program-api:pilas-bloques-api]
+    command=PATH_AL_REPOSITORIO_CLONADO/pilas-bloques-api.fcgi
+    socket=unix:///tmp/pilas-bloques-api-fcgi.sock
+    socket_owner=www-data
+    socket_mode=0700
+    process_name=%(program_name)s_%(process_num)02d
+    numprocs=5
+    directory=/tmp
+    umask=022
+    priority=999
+    autostart=true
+    autorestart=unexpected
+    startsecs=1
+    startretries=3
+    exitcodes=0,2
+    stopsignal=QUIT
+    stopasgroup=false
+    killasgroup=false
+    stopwaitsecs=10
+    user=pilas-bloques-api
+    stderr_logfile=PATH_AL_REPOSITORIO_CLONADO/logs/error.log
+    stderr_logfile_maxbytes=1MB
+    stderr_logfile_backups=10
+    stderr_events_enabled=false
+
+    Detener e iniciar supervisor
+
+        service supervisor stop
+        service supervisor start
+
+A continuación la aplicación puede publicarse en un virtual host `example.com` utilizando la siguiente configuración de nginx:
+
+    server {
+       listen   80; ## listen for ipv4; this line is default and implied
+
+       server_name example.com;
+       error_log PATH_AL_REPOSITORIO_CLONADO/httpd-logs/error.log error;
+
+       location / { try_files $uri @api; }
+       location @api {
+           include fastcgi_params;
+           fastcgi_split_path_info ^(/)(.*)$;
+           fastcgi_param PATH_INFO $fastcgi_path_info;
+           fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+           fastcgi_pass unix:/tmp/pilas-bloques-api-fcgi.sock;
+       }
+    }
+
+Finalmente, reiniciar el servidor nginx.
 
 Prueba
 -----------------------
