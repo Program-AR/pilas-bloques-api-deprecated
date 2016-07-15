@@ -121,7 +121,7 @@ Luego es necesario instalar supervisord.
 
 Configurar supervisord para que inicie la aplicación. Debe crearse el archivo /etc/supervisor/conf.d/pilas-bloques-api.conf con el siguiente contenido, reemplazando PATH_AL_REPOSITORIO_CLONADO por el path corresponiente:
 
-    [fcgi-program-api:pilas-bloques-api]
+    [fcgi-program:pilas-bloques-api]
     command=PATH_AL_REPOSITORIO_CLONADO/pilas-bloques-api.fcgi
     socket=unix:///tmp/pilas-bloques-api-fcgi.sock
     socket_owner=www-data
