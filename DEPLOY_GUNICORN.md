@@ -1,7 +1,7 @@
 Deploy de pilas-bloques-api en servidor de producción
 =======================================================
 
-Este guía indica como instalar la aplicación pilas-bloques-api en el entorno de producción sobre un servidor GNU/Linux. Se utiliza PostreSQL para almacenar datos y Apache2+mod_wsgi para publicar la aplicación en un virtual host.
+Este guía indica como instalar la aplicación pilas-bloques-api en el entorno de producción sobre un servidor GNU/Linux. Se utiliza PostreSQL para almacenar datos y gunicorn+nginx para publicar la aplicación en un virtual host.
 
 Instalación de la aplicación
 ---------------
@@ -74,82 +74,32 @@ Configuración de directorio de logs:
     mkdir PATH_AL_REPOSITORIO_CLONADO/httpd-logs
     chown www-data:www-data PATH_AL_REPOSITORIO_CLONADO/httpd-logs
 
-Configuración del servidor web Apache2
+
+Configurar supervisord
 -----------------------------
 
-En primer, lugar es necesario instalar el módulo mod_wsgi de Apache, en distribuciones derivadas de Debian puede ejecutarse:
+Para que inicie la aplicación. Debe crearse el archivo /etc/supervisor/conf.d/pilas-bloques-api.conf con el siguiente contenido, reemplazando PATH_AL_REPOSITORIO_CLONADO por el path corresponiente:
 
-    apt-get install libapache2-mod-wsgi
-
-A continuación la aplicación puede publicarse en un virtual host `example.com` utilizando la siguiente configuración:
-
-    <VirtualHost *:80>
-       ServerName api.example.com
-
-       <Directory PATH_AL_REPOSITORIO_CLONADO>
-           # En Apache 2.2:
-           # Order deny,allow
-           # Allow from all
-
-           # En Apache 2.4:
-           Require all granted
-       </Directory>
-
-       WSGIDaemonProcess pilas-bloques-api user=pilas-bloques-api group=pilas-bloques-api threads=10 display-name=%{GROUP}
-
-       WSGIProcessGroup pilas-bloques-api
-
-       WSGIScriptAlias / PATH_AL_REPOSITORIO_CLONADO/pilas-bloques-api.wsgi
-
-       ErrorLog PATH_AL_REPOSITORIO_CLONADO/logs/error.log
-       CustomLog PATH_AL_REPOSITORIO_CLONADO/logs/access.log combined
-    </VirtualHost>
-
-Finalmente, reiniciar el servidor Apache.
-
-Configuración del servidor web nginx
------------------------------
-
-En primer lugar, es necesario instalar flup en el virtualenv de la aplicación
-
-    . venv/bin/activate
-    pip install flup
-
-Luego es necesario instalar supervisord.
-
-    apt-get install supervisor
-
-Configurar supervisord para que inicie la aplicación. Debe crearse el archivo /etc/supervisor/conf.d/pilas-bloques-api.conf con el siguiente contenido, reemplazando PATH_AL_REPOSITORIO_CLONADO por el path corresponiente:
-
-    [fcgi-program:pilas-bloques-api]
-    command=PATH_AL_REPOSITORIO_CLONADO/pilas-bloques-api.fcgi
-    socket=unix:///tmp/pilas-bloques-api-fcgi.sock
-    socket_owner=www-data
-    socket_mode=0700
-    process_name=%(program_name)s_%(process_num)02d
-    numprocs=5
-    directory=/tmp
-    umask=022
-    priority=999
-    autostart=true
-    autorestart=unexpected
-    startsecs=1
-    startretries=3
-    exitcodes=0,2
-    stopsignal=QUIT
-    stopasgroup=false
-    killasgroup=false
-    stopwaitsecs=10
+    [program:pilas-bloques-api]
+    command=PATH_AL_REPOSITORIO_CLONADO/venv/bin/gunicorn run:app --workers=5 -b 0.0.0.0:8000
+    directory=PATH_AL_REPOSITORIO_CLONADO
     user=pilas-bloques-api
+    autostart=true
+    autorestart=true
+    redirect_stderr=true
+    environment=LANG=en_US.UTF-8,LC_ALL=en_US.UTF-8
     stderr_logfile=PATH_AL_REPOSITORIO_CLONADO/logs/error.log
     stderr_logfile_maxbytes=1MB
     stderr_logfile_backups=10
     stderr_events_enabled=false
 
-    Detener e iniciar supervisor
+Detener e iniciar supervisor
 
-        service supervisor stop
-        service supervisor start
+    service supervisor stop
+    service supervisor start
+
+Configuración de nginx como proxy
+--------------------
 
 A continuación la aplicación puede publicarse en un virtual host `example.com` utilizando la siguiente configuración de nginx:
 
@@ -159,13 +109,14 @@ A continuación la aplicación puede publicarse en un virtual host `example.com`
        server_name example.com;
        error_log PATH_AL_REPOSITORIO_CLONADO/httpd-logs/error.log error;
 
-       location / { try_files $uri @api; }
-       location @api {
-           include fastcgi_params;
-           fastcgi_split_path_info ^(/)(.*)$;
-           fastcgi_param PATH_INFO $fastcgi_path_info;
-           fastcgi_param SCRIPT_NAME $fastcgi_script_name;
-           fastcgi_pass unix:/tmp/pilas-bloques-api-fcgi.sock;
+       location / {
+           proxy_pass         http://127.0.0.1:8000/;
+           proxy_redirect     off;
+
+           proxy_set_header   Host                 $host;
+           proxy_set_header   X-Real-IP            $remote_addr;
+           proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;
+           proxy_set_header   X-Forwarded-Proto    $scheme;
        }
     }
 
