@@ -81,8 +81,7 @@ Configurar supervisord
 Para que inicie la aplicación. Debe crearse el archivo /etc/supervisor/conf.d/pilas-bloques-api.conf con el siguiente contenido, reemplazando PATH_AL_REPOSITORIO_CLONADO por el path corresponiente:
 
     [program:pilas-bloques-api]
-    command=PATH_AL_REPOSITORIO_CLONADO/venv/bin/gunicorn run:app --workers=5 -b 0.0.0.0:8000
-    directory=PATH_AL_REPOSITORIO_CLONADO
+    command=PATH_AL_REPOSITORIO_CLONADO/run_gunicorn.sh --workers=5 -b 0.0.0.0:8000
     user=pilas-bloques-api
     autostart=true
     autorestart=true
