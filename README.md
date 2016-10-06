@@ -16,7 +16,8 @@ todas las dependencias y la aplicación quedarán aisladas del entorno.
     pip install virtualenv
     virtualenv venv --no-site-packages
     . venv/bin/activate
-    make init initdb
+    make init
+    make initdb
 
 Notá que en los pasos anteriores también inicializamos la base de datos.
 
@@ -52,3 +53,16 @@ Un ejemplo de invocación para crear un registro:
 Como conseguir el mismo registro usando el parámetro hash:
 
     ➤ curl http://localhost:5000/soluciones/123ddj
+
+
+Deploy
+------
+
+Para realizar el deploy en un sistema como dokku podrías escribir un comando similar al siguiente:
+
+
+    git remote add dokku dokku@enjambrelab.com.ar:testing-pilas-bloques-api
+    git push dokku master
+
+Pero para instalar en producción tendrías que seguir alguna guia como la que tenemos en
+el archivo `DEPLOY.md` o `DEPLOY_GUNICORN.md`

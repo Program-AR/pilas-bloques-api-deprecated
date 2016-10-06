@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 # Indique a continuacion el string de conexion a la base de datos
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../database/db.sqlite'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 
 db = SQLAlchemy(app)
 CORS(app)
