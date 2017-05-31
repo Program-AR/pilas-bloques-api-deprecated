@@ -50,3 +50,16 @@ def create_a_solution():
 
     result = schemas.solution_schema.dump(solution)
     return jsonify({'data': result.data})
+
+@app.route("/lti/")
+def lti_welcome():
+    return jsonify({'data': {'name': "pilas-bloques-lti-api"}})
+
+@app.route("/lti/", methods=["POST"])
+def lti_request():
+    request_data = request.get_json()
+
+    if not request_data or not request_data['lti_version']:
+        return jsonify({'message': 'Not a valid LTI request'}), 400
+
+    return jsonify({'message': 'your LTI request is for version: ' + request_data['lti_version'] })
