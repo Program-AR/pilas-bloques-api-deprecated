@@ -57,9 +57,27 @@ def lti_welcome():
 
 @app.route("/lti/", methods=["POST"])
 def lti_request():
-    request_data = request.get_json()
+    #request_data = request.get_json()
+    request_data = request.form
+    ok = True
 
-    if not request_data or not request_data['lti_version']:
+    # Check it is a POST request
+    ok = ok and (request.method == 'POST') # no aporta nada por ahora dado que esta funcion solo recibe post
+
+    # Check the LTI message type
+    ok = ok and request_data['lti_message_type'] and (request_data['lti_message_type'] == 'basic-lti-launch-request')
+
+    # Check the LTI version
+    ok = ok and request_data['lti_version'] and (request_data['lti_version'] == 'LTI-1p0')
+
+    # Check a consumer key exists
+    ok = ok and request_data['oauth_consumer_key']
+
+    # Check a resource link ID exists
+    ok = ok and request_data['resource_link_id']
+
+    #if not request_data or not request_data['lti_version']:
+    if not ok :
         return jsonify({'message': 'Not a valid LTI request'}), 400
 
     return jsonify({'message': 'your LTI request is for version: ' + request_data['lti_version'] })
