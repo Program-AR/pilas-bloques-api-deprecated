@@ -94,6 +94,7 @@ def lti_request():
 
 @app.route('/is_up/', methods=['GET'])
 def hello_world(lti=lti):
+    print(request.form)
     """ Indicate the app is working. Provided for debugging purposes.
     :param lti: the `lti` object from `pylti`
     :return: simple page that indicates the request was processed by the lti
