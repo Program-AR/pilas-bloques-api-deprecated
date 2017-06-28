@@ -1,3 +1,5 @@
+from pylti.flask import lti
+from flask import render_template
 from flask import jsonify
 from flask import request
 from sqlalchemy import desc
@@ -5,6 +7,14 @@ import datetime
 import re
 
 from app import app, db, models, schemas
+
+def error(exception=None):
+    """ render error page
+    :param exception: optional exception
+    :return: the error.html template rendered
+    """
+    print(exception)
+    return render_template('error.html')
 
 @app.route('/')
 def index():
@@ -81,3 +91,24 @@ def lti_request():
         return jsonify({'message': 'Not a valid LTI request'}), 400
 
     return jsonify({'message': 'your LTI request is for version: ' + request_data['lti_version'] })
+
+@app.route('/is_up/', methods=['GET'])
+def hello_world(lti=lti):
+    """ Indicate the app is working. Provided for debugging purposes.
+    :param lti: the `lti` object from `pylti`
+    :return: simple page that indicates the request was processed by the lti
+        provider
+    """
+    return render_template('up.html',lti=lti)
+
+#@app.route('/', methods=['GET', 'POST'])
+@app.route('/index/', methods=['GET','POST'])
+#@app.route('/lti/', methods=['GET', 'POST'])
+@lti(request='initial', error=error, app=app)
+def index2(lti=lti):
+    """ initial access page to the lti provider.  This page provides
+    authorization for the user.
+    :param lti: the `lti` object from `pylti`
+    :return: index page for lti provider
+    """
+    return render_template('index.html', lti=lti)
