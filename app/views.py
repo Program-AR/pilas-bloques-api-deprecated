@@ -2,6 +2,7 @@ from pylti.flask import lti
 from flask import render_template
 from flask import jsonify
 from flask import request
+from flask import redirect
 from sqlalchemy import desc
 import datetime
 import re
@@ -66,50 +67,16 @@ def lti_welcome():
     return jsonify({'data': {'name': "pilas-bloques-lti-api"}})
 
 @app.route("/lti/", methods=["POST"])
-def lti_request():
-    #request_data = request.get_json()
-    request_data = request.form
-    ok = True
-
-    # Check it is a POST request
-    ok = ok and (request.method == 'POST') # no aporta nada por ahora dado que esta funcion solo recibe post
-
-    # Check the LTI message type
-    ok = ok and request_data['lti_message_type'] and (request_data['lti_message_type'] == 'basic-lti-launch-request')
-
-    # Check the LTI version
-    ok = ok and request_data['lti_version'] and (request_data['lti_version'] == 'LTI-1p0')
-
-    # Check a consumer key exists
-    ok = ok and request_data['oauth_consumer_key']
-
-    # Check a resource link ID exists
-    ok = ok and request_data['resource_link_id']
-
-    #if not request_data or not request_data['lti_version']:
-    if not ok :
-        return jsonify({'message': 'Not a valid LTI request'}), 400
-
-    return jsonify({'message': 'your LTI request is for version: ' + request_data['lti_version'] })
-
-@app.route('/is_up/', methods=['GET'])
-def hello_world(lti=lti):
-    print(request.form)
-    """ Indicate the app is working. Provided for debugging purposes.
-    :param lti: the `lti` object from `pylti`
-    :return: simple page that indicates the request was processed by the lti
-        provider
-    """
-    return render_template('up.html',lti=lti)
-
-#@app.route('/', methods=['GET', 'POST'])
-@app.route('/index/', methods=['GET','POST'])
-#@app.route('/lti/', methods=['GET', 'POST'])
 @lti(request='initial', error=error, app=app)
-def index2(lti=lti):
-    """ initial access page to the lti provider.  This page provides
-    authorization for the user.
-    :param lti: the `lti` object from `pylti`
-    :return: index page for lti provider
-    """
-    return render_template('index.html', lti=lti)
+def lti_request(lti=lti):
+    # request_data = request.get_json()
+    # if not request_data or not request_data['lti_version']:
+    #     return jsonify({'message': 'Not a valid LTI request'}), 400
+    # return jsonify({'message': 'your LTI request is for version: ' + request_data['lti_version'] })
+    #return render_template('index.html', lti=lti)
+
+    # El url para este redirect deberia poder armarse dinamicamente,
+    # ya que el hash no es mas que string_a_base_64(idActividad + “-” + idAlumno + “-” + X)
+    # con X un dato conocido solo por el consumer y distinto para cada par actividad-alumno
+    # (dada la especificacion LTI, X podria ser el resource_link_id)
+    return redirect("http://pilasbloques.program.ar/online/#/desafios/cursoAlumno/QWxpZW5Ub2NhQm90b24tZG9uUGVwaXRvLUhBU0hERU1P")

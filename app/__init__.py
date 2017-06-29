@@ -11,11 +11,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 # Indique a continuacion el string de conexion a la base de datos
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////storage/db.sqlite'
 
+# Esto para propagar excepciones - para debugging 
 app.config.update(PROPAGATE_EXCEPTIONS = True)
 
 db = SQLAlchemy(app)
 CORS(app)
 
+
+#############################################################################
+### logging para hacer un seguimiento del comportamiento del server y lti ###
+#############################################################################
 
 import logging
 
@@ -33,10 +38,16 @@ ch.setLevel(logging.DEBUG)
 logger.addHandler(ch)
 logger2.addHandler(ch)
 
+#############################################################################
 
 import models
 import schemas
 import views
+
+
+#############################################################################
+######### configuracion para LTI: consumer_key -> shared_secret #############
+#############################################################################
 
 import os
 
@@ -60,6 +71,8 @@ app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", "you-will-never-gu
 # with open(CONSUMER_KEY_PEM_FILE, 'w') as wfile:
 #     wfile.write(os.environ.get('CONSUMER_KEY_CERT', ''))
 
+# Aqui completar key -> secret
+# Lo ideal es que la pagina de PB permita configurar nuevos consumers directamente
 app.config['PYLTI_CONFIG'] = {
     "consumers": {
         "__consumer_key__": {
@@ -69,14 +82,4 @@ app.config['PYLTI_CONFIG'] = {
     }
 }
 
-# Remap URL to fix edX's misrepresentation of https protocol.
-# You can add another dict entry if you have trouble with the
-# PyLti URL.
-# PYLTI_URL_FIX = {
-#     "https://localhost:8000/": {
-#         "https://localhost:8000/": "http://localhost:8000/"
-#     },
-#     "https://localhost/": {
-# "https://localhost/": "http://192.168.33.10/"
-#     }
-# }
+#############################################################################
