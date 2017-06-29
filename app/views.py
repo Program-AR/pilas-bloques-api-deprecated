@@ -67,7 +67,7 @@ def lti_welcome():
     return jsonify({'data': {'name': "pilas-bloques-lti-api"}})
 
 @app.route("/lti/", methods=["POST"])
-@lti(request='initial', error=error, app=app)
+@lti(request='session', error=error, app=app)
 def lti_request(lti=lti):
     # request_data = request.get_json()
     # if not request_data or not request_data['lti_version']:
@@ -76,7 +76,7 @@ def lti_request(lti=lti):
     #return render_template('index.html', lti=lti)
 
     # El url para este redirect deberia poder armarse dinamicamente,
-    # ya que el hash no es mas que string_a_base_64(idActividad + “-” + idAlumno + “-” + X)
+    # ya que el hash no es mas que string_a_base_64(idActividad + "-" + idAlumno + "-" + X)
     # con X un dato conocido solo por el consumer y distinto para cada par actividad-alumno
     # (dada la especificacion LTI, X podria ser el resource_link_id)
     return redirect("http://pilasbloques.program.ar/online/#/desafios/cursoAlumno/QWxpZW5Ub2NhQm90b24tZG9uUGVwaXRvLUhBU0hERU1P")
