@@ -67,7 +67,7 @@ def lti_welcome():
     return jsonify({'data': {'name': "pilas-bloques-lti-api"}})
 
 @app.route("/lti/", methods=["POST"])
-@lti(request='session', error=error, app=app)
+@lti(request='any', error=error, app=app)
 def lti_request(lti=lti):
     # request_data = request.get_json()
     # if not request_data or not request_data['lti_version']:
@@ -80,3 +80,10 @@ def lti_request(lti=lti):
     # con X un dato conocido solo por el consumer y distinto para cada par actividad-alumno
     # (dada la especificacion LTI, X podria ser el resource_link_id)
     return redirect("http://pilasbloques.program.ar/online/#/desafios/cursoAlumno/QWxpZW5Ub2NhQm90b24tZG9uUGVwaXRvLUhBU0hERU1P")
+
+
+@app.route("/grade/", methods=["POST"])
+@lti(request='any', error=error, app=app)
+def lti_grade(lti=lti):
+    lti.post_grade(1)
+    return jsonify({'nota': 1})
