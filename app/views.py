@@ -67,7 +67,7 @@ def lti_welcome():
     return jsonify({'data': {'name': "pilas-bloques-lti-api"}})
 
 @app.route("/lti/", methods=["POST"])
-@lti(request='any', error=error, app=app)
+@lti(request='initial', error=error, app=app)
 def lti_request(lti=lti):
     # request_data = request.get_json()
     # if not request_data or not request_data['lti_version']:
