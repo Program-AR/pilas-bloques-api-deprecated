@@ -74,7 +74,7 @@ def lti_request(lti=lti):
     #     return jsonify({'message': 'Not a valid LTI request'}), 400
     # return jsonify({'message': 'your LTI request is for version: ' + request_data['lti_version'] })
     #return render_template('index.html', lti=lti)
-
+    
     # El url para este redirect deberia poder armarse dinamicamente,
     # ya que el hash no es mas que string_a_base_64(idActividad + "-" + idAlumno + "-" + X)
     # con X un dato conocido solo por el consumer y distinto para cada par actividad-alumno
@@ -83,7 +83,7 @@ def lti_request(lti=lti):
 
 
 @app.route("/grade/", methods=["POST"])
-@lti(request='any', error=error, app=app)
+@lti(request='session', error=error, app=app)
 def lti_grade(lti=lti):
     lti.post_grade(1)
     return jsonify({'nota': 1})

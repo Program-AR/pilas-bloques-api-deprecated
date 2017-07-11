@@ -22,21 +22,38 @@ CORS(app)
 ### logging para hacer un seguimiento del comportamiento del server y lti ###
 #############################################################################
 
-import logging
+# import logging
 
-# create logger
-logger = logging.getLogger('pylti.flask')
-logger.setLevel(logging.DEBUG)
+# # create logger
+# logger = logging.getLogger('pylti.flask')
+# logger.setLevel(logging.DEBUG)
 
-logger2 = logging.getLogger('pylti.common')
-logger2.setLevel(logging.DEBUG)
+# logger2 = logging.getLogger('pylti.common')
+# logger2.setLevel(logging.DEBUG)
 
-# create console handler and set level to debug
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+# # create console handler and set level to debug
+# ch = logging.StreamHandler()
+# ch.setLevel(logging.DEBUG)
 
-logger.addHandler(ch)
-logger2.addHandler(ch)
+# logger.addHandler(ch)
+# logger2.addHandler(ch)
+
+def set_debugging():
+    """ enable debug logging
+    """
+    import logging
+    import sys
+
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(name)s - %(message)s')
+    ch.setFormatter(formatter)
+    root.addHandler(ch)
+
+set_debugging()
 
 #############################################################################
 
@@ -52,7 +69,7 @@ import views
 import os
 
 # enable CSRF
-# app.config['WTF_CSRF_ENABLED'] = True
+app.config['WTF_CSRF_ENABLED'] = True
 
 # secret key for authentication
 app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", "you-will-never-guess")
@@ -67,9 +84,9 @@ app.config['SECRET_KEY'] = os.environ.get("FLASK_SECRET_KEY", "you-will-never-gu
 # )
 # ```
 
-# CONSUMER_KEY_PEM_FILE = os.path.abspath('consumer_key.pem')
+# app.config['CONSUMER_KEY_PEM_FILE'] = os.path.abspath('consumer_key.pem')
 # with open(CONSUMER_KEY_PEM_FILE, 'w') as wfile:
-#     wfile.write(os.environ.get('CONSUMER_KEY_CERT', ''))
+# 	wfile.write(os.environ.get('CONSUMER_KEY_CERT', ''))
 
 # Aqui completar key -> secret
 # Lo ideal es que la pagina de PB permita configurar nuevos consumers directamente
