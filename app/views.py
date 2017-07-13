@@ -69,12 +69,6 @@ def lti_welcome():
 @app.route("/lti/", methods=["POST"])
 @lti(request='initial', error=error, app=app)
 def lti_request(lti=lti):
-    # request_data = request.get_json()
-    # if not request_data or not request_data['lti_version']:
-    #     return jsonify({'message': 'Not a valid LTI request'}), 400
-    # return jsonify({'message': 'your LTI request is for version: ' + request_data['lti_version'] })
-    #return render_template('index.html', lti=lti)
-    
     # El url para este redirect deberia poder armarse dinamicamente,
     # ya que el hash no es mas que string_a_base_64(idActividad + "-" + idAlumno + "-" + X)
     # con X un dato conocido solo por el consumer y distinto para cada par actividad-alumno
@@ -85,5 +79,12 @@ def lti_request(lti=lti):
 @app.route("/grade/", methods=["POST"])
 @lti(request='session', error=error, app=app)
 def lti_grade(lti=lti):
+    # Esta nota se hardcodea por comodidad ahora, luego deberia poder ser evaluada 
+    # en funcion del desempeño del alumno en el ejercicio correspondiente.
+    # Una forma es tener guardadas las notas por alumno-ejercicio
+    # en una base de datos y consultarlas en este handler.
+    # En principio, debe ser un decimal entre 0 y 1 inclusive.
+    # Puede representar lo que se necesite: cuan bien se hizo, cuan completo, etc.
     lti.post_grade(1)
-    return jsonify({'nota': 1})
+    # Seria mas prolijo hacer un try-except para handlear en caso de que el post_grade falle.
+    return jsonify({'success': True})
