@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////storage/db.sqlite'
 app.config.update(PROPAGATE_EXCEPTIONS = True)
 
 db = SQLAlchemy(app)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 
 #############################################################################
