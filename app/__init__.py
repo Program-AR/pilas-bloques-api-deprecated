@@ -49,7 +49,7 @@ def set_debugging():
 
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(name)s - %(message)s')
+    formatter = logging.Formatter('[%(asctime)-14s] %(name)s - %(message)s')
     ch.setFormatter(formatter)
     root.addHandler(ch)
 

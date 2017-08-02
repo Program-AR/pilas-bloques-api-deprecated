@@ -6,6 +6,7 @@ from flask import redirect
 from sqlalchemy import desc
 import datetime
 import re
+import logging
 
 from app import app, db, models, schemas
 
@@ -14,7 +15,7 @@ def error(exception=None):
     :param exception: optional exception
     :return: the error.html template rendered
     """
-    print(exception)
+    logging.getLogger('pilasapi').error(str(exception))
     return render_template('error.html')
 
 @app.route('/')
