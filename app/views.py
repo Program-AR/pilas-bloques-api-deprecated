@@ -16,7 +16,12 @@ def error(exception=None):
     :return: the error.html template rendered
     """
     logging.getLogger('pilasapi').error(str(exception))
-    return render_template('error.html')
+
+    errorCode = 400
+    if 'LTINotInSessionException' in str(exception):
+        errorCode = 401
+
+    return render_template('error.html',descripcion=str(exception)), errorCode
 
 @app.route('/')
 def index():
@@ -75,7 +80,7 @@ def lti_request(lti=lti):
     # con X un dato conocido solo por el consumer y distinto para cada par actividad-alumno
     # (dada la especificacion LTI, X podria ser el resource_link_id)
     # return redirect("http://pilasbloques.program.ar/online/#/desafios/cursoAlumno/QWxpZW5Ub2NhQm90b24tZG9uUGVwaXRvLUhBU0hERU1P")
-    return redirect("http://localhost:4200/#/desafios/cursoAlumno/QWxpZW5Ub2NhQm90b24tZG9uUGVwaXRvLUhBU0hERU1P")
+    return redirect("http://0.0.0.0:4200/#/desafios/cursoAlumno/QWxpZW5Ub2NhQm90b24tZG9uUGVwaXRvLUhBU0hERU1P")
 
 
 @app.route("/grade/", methods=["POST"])
