@@ -22,36 +22,28 @@ CORS(app, supports_credentials=True)
 ### logging para hacer un seguimiento del comportamiento del server y lti ###
 #############################################################################
 
-# import logging
-
-# # create logger
-# logger = logging.getLogger('pylti.flask')
-# logger.setLevel(logging.DEBUG)
-
-# logger2 = logging.getLogger('pylti.common')
-# logger2.setLevel(logging.DEBUG)
-
-# # create console handler and set level to debug
-# ch = logging.StreamHandler()
-# ch.setLevel(logging.DEBUG)
-
-# logger.addHandler(ch)
-# logger2.addHandler(ch)
-
 def set_debugging():
     """ enable debug logging
     """
     import logging
     import sys
 
+    # create logger
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)
-
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.DEBUG)
+    # create file handler which logs debug messages
+    fh = logging.FileHandler('pbapi.log')
+    fh.setLevel(logging.DEBUG)
+    # create console handler
+    # ch = logging.StreamHandler(sys.stdout)
+    # ch.setLevel(logging.DEBUG)
+    # create formatter and add it to the handlers
     formatter = logging.Formatter('[%(asctime)-14s] %(name)s - %(message)s')
-    ch.setFormatter(formatter)
-    root.addHandler(ch)
+    fh.setFormatter(formatter)
+    # ch.setFormatter(formatter)
+    # add the handlers to the logger
+    root.addHandler(fh)
+    # root.addHandler(ch)
 
 set_debugging()
 
