@@ -1,5 +1,9 @@
-pilas-bloques-api
+> Este proyecto fue archivado. El código se encuentra ahora en https://github.com/Program-AR/pilas-bloques-backend
+
+
+pilas-bloques-api (Proyecto archivado)
 =================
+
 
 Un servidor que permite guardar y recuperar soluciones para la aplicación
 pilas-bloques.
